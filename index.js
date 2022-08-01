@@ -1,5 +1,5 @@
 const inquirer = require('inquirer');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const cTable = require('console.table');
 
 // connect to database
@@ -10,15 +10,9 @@ const db = mysql.createConnection(
         user: 'root',
         // Your MySQL password
         password: '',
-        database: 'election'
+        database: 'employeeTracker'
     },
 );
-
-connection.connect((err) => {
-    if (err) throw err;
-    console.log(`Connected as id ${connection.threadId}`);
-    startApp();
-});
 
 startApp = () => {
     inquirer.prompt([
@@ -30,6 +24,8 @@ startApp = () => {
         }
     ])
 };
+
+startApp();
 
 // formatted table showing department names and department ids
 // the job title, role id, the department that role belongs to, and the salary for that role
