@@ -71,7 +71,7 @@ viewAllDepartments = () => {
 };
 
 viewAllRoles = () => {
-    db.query(`SELECT role.id, role.title, role.salary, department.name AS department_name FROM role LEFT JOIN department ON role.department_id = department.id;`, (err, res) => {
+    db.query(`SELECT role.id, role.title, role.salary, department.name AS department FROM role LEFT JOIN department ON role.department_id = department.id;`, (err, res) => {
         if (err) throw err;
         console.table(res);
         startApp();
@@ -79,7 +79,8 @@ viewAllRoles = () => {
 };
 
 viewAllEmployees = () => {
-    db.query(`SELECT employee.*, role.title AS role_title FROM employee LEFT JOIN role ON employee.role_id = role.id;`, (err, res) => {
+    db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
+    FROM employee LEFT JOIN employee manager on manager.id = employee.manager_id INNER JOIN role ON (role.id = employee.role_id) INNER JOIN department ON (department.id = role.department_id) ORDER BY employee.id;`, (err, res) => {
         if (err) throw err;
         console.table(res);
         startApp();
@@ -88,7 +89,6 @@ viewAllEmployees = () => {
 
 
 
-// formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
 
 // enter the name of the department and that department is added to the database
 // enter the name, salary, and department for the role and that role is added to the database
