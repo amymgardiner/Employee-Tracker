@@ -71,14 +71,20 @@ viewAllDepartments = () => {
 };
 
 viewAllRoles = () => {
-    db.query(`SELECT * FROM role;`, (err, res) => {
+    db.query(`SELECT role.*, department.name AS department_name FROM role LEFT JOIN department ON role.department_id = department.id;`, (err, res) => {
         if (err) throw err;
         console.table(res);
         startApp();
     })
 };
 
-
+viewAllEmployees = () => {
+    db.query(`SELECT * FROM employee;`, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        startApp();
+    })
+};
 
 // formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
 
