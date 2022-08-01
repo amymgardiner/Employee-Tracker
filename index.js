@@ -14,18 +14,61 @@ const db = mysql.createConnection(
     },
 );
 
+db.connect((err) => {
+    if (err) throw err;
+    console.log(`Connected as id ${db.threadId}`);
+    startApp();
+});
+
 startApp = () => {
     inquirer.prompt([
         {
             name: 'initialPrompt',
             type: 'list',
             message: 'Welcome to the employee management program! What would you like to do?',
-            choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role']
+            choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Exit program']
         }
     ])
+    .then((response) => {
+        switch (response.initialPrompt) {
+            case 'View all departments':
+                viewAllDepartments();    
+                break;
+            case 'View all roles':
+                viewAllRoles();
+                break;
+            case 'View all employees':
+                viewAllEmployees();
+                break;
+            case 'Add a department':
+                addADepartment();
+                break;
+            case 'Add a role':
+                addARole();
+                break;
+            case 'Add an employee':
+                addAnEmployee();
+                break;
+            case 'Update employee\'s role':
+                updateEmployeeRole();
+                break;
+            case 'Exit program':
+                db.end();
+                console.log('You have exited the employee management program. Thanks for using!');
+                return;
+                default:
+                break;
+        }
+    })
 };
 
-startApp();
+viewAllDepartments = () => {
+    db.query(`SELECT * FROM department;`, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        startApp();
+    })
+};
 
 // formatted table showing department names and department ids
 // the job title, role id, the department that role belongs to, and the salary for that role
