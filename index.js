@@ -70,8 +70,16 @@ viewAllDepartments = () => {
     })
 };
 
-// formatted table showing department names and department ids
-// the job title, role id, the department that role belongs to, and the salary for that role
+viewAllRoles = () => {
+    db.query(`SELECT * FROM role;`, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        startApp();
+    })
+};
+
+
+
 // formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
 
 // enter the name of the department and that department is added to the database
