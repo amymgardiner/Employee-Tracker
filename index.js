@@ -49,7 +49,7 @@ startApp = () => {
             case 'Add an employee':
                 addAnEmployee();
                 break;
-            case 'Update employee\'s role':
+            case "Update employee's role":
                 updateEmployeeRole();
                 break;
             case 'Exit program':
@@ -71,7 +71,7 @@ viewAllDepartments = () => {
 };
 
 viewAllRoles = () => {
-    db.query(`SELECT role.*, department.name AS department_name FROM role LEFT JOIN department ON role.department_id = department.id;`, (err, res) => {
+    db.query(`SELECT role.id, role.title, role.salary, department.name AS department_name FROM role LEFT JOIN department ON role.department_id = department.id;`, (err, res) => {
         if (err) throw err;
         console.table(res);
         startApp();
@@ -79,12 +79,14 @@ viewAllRoles = () => {
 };
 
 viewAllEmployees = () => {
-    db.query(`SELECT * FROM employee;`, (err, res) => {
+    db.query(`SELECT employee.*, role.title AS role_title FROM employee LEFT JOIN role ON employee.role_id = role.id;`, (err, res) => {
         if (err) throw err;
         console.table(res);
         startApp();
     })
 };
+
+
 
 // formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
 
