@@ -49,7 +49,7 @@ startApp = () => {
             case 'Add an employee':
                 addAnEmployee();
                 break;
-            case "Update employee's role":
+            case 'Update an employee role':
                 updateEmployeeRole();
                 break;
             // Exit program function
@@ -215,10 +215,47 @@ addAnEmployee = () => {
 };
 
 // Update an employee role
-
-
-
-
-
-//  enter the employee’s first name, last name, role, and manager, and that employee is added to the database
-// select an employee to update and their new role and this information is updated in the database
+updateEmployeeRole = () => {
+    db.query(`SELECT * FROM role;`, (err, res) => {
+        if (err) throw err;
+        
+        let roles = res.map(role => ({name: role.title, value: role.id }));
+        
+        db.query(`SELECT * FROM employee;`, (err, res) => {
+            if (err) throw err;
+            
+            let employees = res.map(employee => ({name: employee.first_name + ' ' + employee.last_name, value: employee.id}));
+            
+            inquirer.prompt([
+                {
+                    name: 'employee',
+                    type: 'list',
+                    message: 'Which employee would you like to update the role for?',
+                    choices: employees
+                },
+                {
+                    name: 'newRole',
+                    type: 'list',
+                    message: "What should the employee's new role be?",
+                    choices: roles
+                }
+            ])
+            .then((response) => {
+                db.query(`UPDATE employee SET ? WHERE ?`, 
+                [
+                    {
+                        role_id: response.newRole,
+                    },
+                    {
+                        id: response.employee,
+                    },
+                ], 
+                (err, res) => {
+                    if (err) throw err;
+                    console.log(`\n Successfully updated employee's role in the database! \n`);
+                    startApp();
+                })
+            })
+        })
+    })
+};
