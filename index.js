@@ -33,7 +33,7 @@ startApp = () => {
             name: 'initialPrompt',
             type: 'list',
             message: 'Welcome to the employee management program! What would you like to do?',
-            choices: ['View all departments', 'View all roles', 'View all employees', 'View employees by manager', 'View employees by department', 'View department budgets', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Update employee manager', 'Remove a department', 'Exit program']
+            choices: ['View all departments', 'View all roles', 'View all employees', 'View employees by manager', 'View employees by department', 'View department budgets', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Update employee manager', 'Remove a department', 'Remove a role', 'Exit program']
         }
     ])
     .then((response) => {
@@ -57,22 +57,25 @@ startApp = () => {
                 viewDepartmentSalary();
                 break;
             case 'Add a department':
-                addADepartment();
+                addDepartment();
                 break;
             case 'Add a role':
-                addARole();
+                addRole();
                 break;
             case 'Add an employee':
-                addAnEmployee();
+                addEmployee();
                 break;
             case 'Update an employee role':
                 updateEmployeeRole();
                 break;
             case 'Update employee manager':
-                updateEmployeesManager();
+                updateEmployeeManager();
                 break;
             case 'Remove a department':
-                removeADepartment();
+                removeDepartment();
+                break;
+            case 'Remove a role':
+                removeRole();
                 break;
             // Exit program function
             case 'Exit program':
@@ -143,7 +146,7 @@ viewDepartmentSalary = () => {
 }
 
 // Add a department
-addADepartment = () => {
+addDepartment = () => {
     inquirer.prompt([
         {
         name: 'newDept',
@@ -165,7 +168,7 @@ addADepartment = () => {
 };
 
 // Add a role
-addARole = () => {
+addRole = () => {
     db.query(`SELECT * FROM department;`, (err, res) => {
         if (err) throw err;
         
@@ -206,7 +209,7 @@ addARole = () => {
 };
 
 // Add an employee
-addAnEmployee = () => {
+addEmployee = () => {
     db.query(`SELECT * FROM role;`, (err, res) => {
         if (err) throw err;
         
@@ -312,7 +315,7 @@ updateEmployeeRole = () => {
 };
 
 // Update employee managers
-updateEmployeesManager = () => {
+updateEmployeeManager = () => {
     db.query(`SELECT * FROM employee;`, (err, res) => {
         if (err) throw err;
         
@@ -352,7 +355,7 @@ updateEmployeesManager = () => {
 };
 
 // Delete departments
-removeADepartment = () => {
+removeDepartment = () => {
     db.query(`SELECT * FROM department;`, (err, res) => {
         
         if (err) throw err;
@@ -384,5 +387,34 @@ removeADepartment = () => {
 }
 
 // Delte roles
+removeRole = () => {
+    db.query(`SELECT * FROM role;`, (err, res) => {
+        if (err) throw err;
+        
+        let roles = res.map(role => ({name: role.title, value: role.id }));
+        
+        inquirer.prompt([
+            {
+            name: 'title',
+            type: 'list',
+            message: 'Which role would you like to remove?',
+            choices: roles
+            },
+        ])
+        .then((response) => {
+            db.query(`DELETE FROM role WHERE ?`, 
+            [
+                {
+                    id: response.title,
+                },
+            ], 
+            (err, res) => {
+                if (err) throw err;
+                console.log(`\n Successfully removed the role from the database! \n`);
+                startApp();
+            })
+        })
+    })
+}
 
 // Delete employees
