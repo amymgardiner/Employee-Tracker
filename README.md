@@ -22,4 +22,18 @@ When you choose to add an employee, then you will be prompted to enter the emplo
 
 ## How to use it
 
-## Example
+You will first need to download [Node.js](https://coding-boot-camp.github.io/full-stack/nodejs/how-to-install-nodejs) and [MySQL](https://coding-boot-camp.github.io/full-stack/mysql/mysql-installation-guide).
+
+Next you will need to clone my [GitHub Repository](https://github.com/amymgardiner/Employee-Tracker).
+
+Once you're in the file relating to my code, in your command line you will enter:
+
+npm install
+
+which installs the dependencies to the local node_modules folder. By default, npm install will install all modules listed as dependencies in package.json.
+
+Next, you'll want to enter in your MySQL username and your MySQL password in the fields I have listed in index.js.
+
+Finally, the application will be invoked by using the following command:
+
+node index.js
