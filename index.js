@@ -23,6 +23,7 @@ db.connect((err) => {
     console.log(chalk.bgCyan.bold(`  EMPLOYEE TRACKER  `));
     console.log(``);
     console.log(chalk.yellow.bold(`====================`));
+    console.log(``);
     startApp();
 });
 
