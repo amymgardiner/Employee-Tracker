@@ -32,7 +32,7 @@ startApp = () => {
             name: 'initialPrompt',
             type: 'list',
             message: 'Welcome to the employee management program! What would you like to do?',
-            choices: ['View all departments', 'View all roles', 'View all employees', 'View employees by manager', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Update employee manager', 'Exit program']
+            choices: ['View all departments', 'View all roles', 'View all employees', 'View employees by manager', 'View employees by department', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Update employee manager', 'Exit program']
         }
     ])
     .then((response) => {
@@ -48,6 +48,9 @@ startApp = () => {
                 break;
             case 'View employees by manager':
                 viewEmployeesByManager();
+                break;
+            case 'View employees by department':
+                viewEmployeesByDepartment();
                 break;
             case 'Add a department':
                 addADepartment();
@@ -107,6 +110,16 @@ viewAllEmployees = () => {
 viewEmployeesByManager = () => {
     db.query(`SELECT CONCAT(manager.first_name, ' ', manager.last_name) AS manager, department.name AS department, employee.id AS employee, employee.first_name, employee.last_name, role.title
     FROM employee LEFT JOIN employee manager on manager.id = employee.manager_id INNER JOIN role ON (role.id = employee.role_id && employee.manager_id != 'NULL') INNER JOIN department ON (department.id = role.department_id) ORDER BY manager;`, (err, res) => {
+        if (err) throw err;
+        console.table('\n', res, '\n');
+        startApp();
+    })
+};
+
+// View employees by department
+viewEmployeesByDepartment = () => {
+    db.query(`SELECT department.name AS department, role.title, employee.id AS employee, employee.first_name, employee.last_name FROM employee
+    LEFT JOIN role ON (role.id = employee.role_id) LEFT JOIN department ON (department.id = role.department_id) ORDER BY department.name;`, (err, res) => {
         if (err) throw err;
         console.table('\n', res, '\n');
         startApp();
