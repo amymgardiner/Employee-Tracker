@@ -32,7 +32,7 @@ startApp = () => {
             name: 'initialPrompt',
             type: 'list',
             message: 'Welcome to the employee management program! What would you like to do?',
-            choices: ['View all departments', 'View all roles', 'View all employees', 'View employees by manager', 'View employees by department', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Update employee manager', 'Exit program']
+            choices: ['View all departments', 'View all roles', 'View all employees', 'View employees by manager', 'View employees by department', 'View department budgets', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Update employee manager', 'Exit program']
         }
     ])
     .then((response) => {
@@ -51,6 +51,9 @@ startApp = () => {
                 break;
             case 'View employees by department':
                 viewEmployeesByDepartment();
+                break;
+            case 'View department budgets':
+                viewDepartmentSalary();
                 break;
             case 'Add a department':
                 addADepartment();
@@ -125,6 +128,15 @@ viewEmployeesByDepartment = () => {
         startApp();
     })
 };
+
+// View the total utilized budget of a department—in other words, the combined salaries of all employees in that department
+viewDepartmentSalary = () => {
+    db.query(`SELECT department.name AS Department, SUM(salary) AS Amount FROM role LEFT JOIN department on role.department_id = department.id GROUP BY department.id`, (err, res) => {
+        if (err) throw err;
+        console.table('\n', res, '\n');
+        startApp(); 
+    })
+}
 
 // Add a department
 addADepartment = () => {
