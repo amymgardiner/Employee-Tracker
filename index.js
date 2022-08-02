@@ -347,3 +347,9 @@ updateEmployeesManager = () => {
         })
     })
 };
+
+// Delete departments
+
+// Delte roles
+
+// Delete employees
