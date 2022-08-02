@@ -16,7 +16,7 @@ const db = mysql.createConnection(
 
 db.connect((err) => {
     if (err) throw err;
-    console.log(`Connected as id ${db.threadId}`);
+    console.log(`Connected as id ${db.threadId} \n`);
     startApp();
 });
 
@@ -65,7 +65,7 @@ startApp = () => {
 viewAllDepartments = () => {
     db.query(`SELECT * FROM department;`, (err, res) => {
         if (err) throw err;
-        console.table(res);
+        console.table('\n', res, '\n');
         startApp();
     })
 };
@@ -73,7 +73,7 @@ viewAllDepartments = () => {
 viewAllRoles = () => {
     db.query(`SELECT role.id, role.title, role.salary, department.name AS department FROM role LEFT JOIN department ON role.department_id = department.id;`, (err, res) => {
         if (err) throw err;
-        console.table(res);
+        console.table('\n', res, '\n');
         startApp();
     })
 };
@@ -82,13 +82,31 @@ viewAllEmployees = () => {
     db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
     FROM employee LEFT JOIN employee manager on manager.id = employee.manager_id INNER JOIN role ON (role.id = employee.role_id) INNER JOIN department ON (department.id = role.department_id) ORDER BY employee.id;`, (err, res) => {
         if (err) throw err;
-        console.table(res);
+        console.table('\n', res, '\n');
         startApp();
     })
 };
 
-
-
+addADepartment = () => {
+    inquirer.prompt([
+        {
+        name: 'newDept',
+        type: 'input',
+        message: 'What is the name of the department you want to add?'   
+        }
+    ])
+    .then((response) => {
+        db.query(`INSERT INTO department SET ?`, 
+        {
+            name: response.newDept,
+        },
+        (err, res) => {
+            if (err) throw err;
+            console.log(`\n ${response.newDept} successfully added to database! \n`);
+            startApp();
+        })
+    })
+};
 
 // enter the name of the department and that department is added to the database
 // enter the name, salary, and department for the role and that role is added to the database
