@@ -33,7 +33,7 @@ startApp = () => {
             name: 'initialPrompt',
             type: 'list',
             message: 'Welcome to the employee management program! What would you like to do?',
-            choices: ['View all departments', 'View all roles', 'View all employees', 'View employees by manager', 'View employees by department', 'View department budgets', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Update employee manager', 'Exit program']
+            choices: ['View all departments', 'View all roles', 'View all employees', 'View employees by manager', 'View employees by department', 'View department budgets', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Update employee manager', 'Remove a department', 'Exit program']
         }
     ])
     .then((response) => {
@@ -70,6 +70,9 @@ startApp = () => {
                 break;
             case 'Update employee manager':
                 updateEmployeesManager();
+                break;
+            case 'Remove a department':
+                removeADepartment();
                 break;
             // Exit program function
             case 'Exit program':
@@ -349,6 +352,36 @@ updateEmployeesManager = () => {
 };
 
 // Delete departments
+removeADepartment = () => {
+    db.query(`SELECT * FROM department;`, (err, res) => {
+        
+        if (err) throw err;
+        
+        let departments = res.map(department => ({name: department.name, value: department.id }));
+       
+        inquirer.prompt([
+            {
+            name: 'deptName',
+            type: 'list',
+            message: 'Which department would you like to remove?',
+            choices: departments
+            },
+        ])
+        .then((response) => {
+            db.query(`DELETE FROM department WHERE ?`, 
+            [
+                {
+                    id: response.deptName,
+                },
+            ], 
+            (err, res) => {
+                if (err) throw err;
+                console.log(`\n Successfully removed the department from the database! \n`);
+                startApp();
+            })
+        })
+    })
+}
 
 // Delte roles
 
