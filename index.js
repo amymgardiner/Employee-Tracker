@@ -33,7 +33,7 @@ startApp = () => {
             name: 'initialPrompt',
             type: 'list',
             message: 'Welcome to the employee management program! What would you like to do?',
-            choices: ['View all departments', 'View all roles', 'View all employees', 'View employees by manager', 'View employees by department', 'View department budgets', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Update employee manager', 'Remove a department', 'Remove a role', 'Exit program']
+            choices: ['View all departments', 'View all roles', 'View all employees', 'View employees by manager', 'View employees by department', 'View department budgets', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Update employee manager', 'Remove a department', 'Remove a role', 'Remove an employee', 'Exit program']
         }
     ])
     .then((response) => {
@@ -76,6 +76,9 @@ startApp = () => {
                 break;
             case 'Remove a role':
                 removeRole();
+                break;
+            case 'Remove an employee':
+                removeEmployee();
                 break;
             // Exit program function
             case 'Exit program':
@@ -418,3 +421,32 @@ removeRole = () => {
 }
 
 // Delete employees
+removeEmployee = () => {
+    db.query(`SELECT * FROM employee;`, (err, res) => {
+        if (err) throw err;
+        
+        let employees = res.map(employee => ({name: employee.first_name + ' ' + employee.last_name, value: employee.id }));
+       
+        inquirer.prompt([
+            {
+                name: 'employee',
+                type: 'list',
+                message: 'Which employee would you like to remove?',
+                choices: employees
+            },
+        ])
+        .then((response) => {
+            db.query(`DELETE FROM employee WHERE ?`, 
+            [
+                {
+                    id: response.employee,
+                },
+            ], 
+            (err, res) => {
+                if (err) throw err;
+                console.log(`\n Successfully removed the employee from the database! \n`);
+                startApp();
+            })
+        })
+    })
+}
