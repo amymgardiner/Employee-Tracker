@@ -1,6 +1,7 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const cTable = require('console.table');
+const chalk = require('chalk');
 
 // connect to database
 const db = mysql.createConnection(
@@ -17,6 +18,11 @@ const db = mysql.createConnection(
 db.connect((err) => {
     if (err) throw err;
     console.log(`Connected as id ${db.threadId} \n`);
+    console.log(chalk.yellow.bold(`====================`));
+    console.log(``);
+    console.log(chalk.bgCyan.bold(`  EMPLOYEE TRACKER  `));
+    console.log(``);
+    console.log(chalk.yellow.bold(`====================`));
     startApp();
 });
 
@@ -26,7 +32,7 @@ startApp = () => {
             name: 'initialPrompt',
             type: 'list',
             message: 'Welcome to the employee management program! What would you like to do?',
-            choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Exit program']
+            choices: ['View all departments', 'View all roles', 'View all employees', 'View employees by manager', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Update employee manager', 'Exit program']
         }
     ])
     .then((response) => {
@@ -40,6 +46,9 @@ startApp = () => {
             case 'View all employees':
                 viewAllEmployees();
                 break;
+            case 'View employees by manager':
+                viewEmployeesByManager();
+                break;
             case 'Add a department':
                 addADepartment();
                 break;
@@ -51,6 +60,9 @@ startApp = () => {
                 break;
             case 'Update an employee role':
                 updateEmployeeRole();
+                break;
+            case 'Update employee manager':
+                updateEmployeesManager();
                 break;
             // Exit program function
             case 'Exit program':
@@ -85,6 +97,16 @@ viewAllRoles = () => {
 viewAllEmployees = () => {
     db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
     FROM employee LEFT JOIN employee manager on manager.id = employee.manager_id INNER JOIN role ON (role.id = employee.role_id) INNER JOIN department ON (department.id = role.department_id) ORDER BY employee.id;`, (err, res) => {
+        if (err) throw err;
+        console.table('\n', res, '\n');
+        startApp();
+    })
+};
+
+// View employees by manager
+viewEmployeesByManager = () => {
+    db.query(`SELECT CONCAT(manager.first_name, ' ', manager.last_name) AS manager, department.name AS department, employee.id AS employee, employee.first_name, employee.last_name, role.title
+    FROM employee LEFT JOIN employee manager on manager.id = employee.manager_id INNER JOIN role ON (role.id = employee.role_id && employee.manager_id != 'NULL') INNER JOIN department ON (department.id = role.department_id) ORDER BY manager;`, (err, res) => {
         if (err) throw err;
         console.table('\n', res, '\n');
         startApp();
@@ -255,6 +277,46 @@ updateEmployeeRole = () => {
                     console.log(`\n Successfully updated employee's role in the database! \n`);
                     startApp();
                 })
+            })
+        })
+    })
+};
+
+// Update employee managers
+updateEmployeesManager = () => {
+    db.query(`SELECT * FROM employee;`, (err, res) => {
+        if (err) throw err;
+        
+        let employees = res.map(employee => ({name: employee.first_name + ' ' + employee.last_name, value: employee.id }));
+        
+        inquirer.prompt([
+            {
+                name: 'employee',
+                type: 'list',
+                message: 'Which employee would you like to update the manager for?',
+                choices: employees
+            },
+            {
+                name: 'newManager',
+                type: 'list',
+                message: "Who should the employee's new manager be?",
+                choices: employees
+            },
+        ])
+        .then((response) => {
+            db.query(`UPDATE employee SET ? WHERE ?`, 
+            [
+                {
+                    manager_id: response.newManager,
+                },
+                {
+                    id: response.employee,
+                },
+            ], 
+            (err, res) => {
+                if (err) throw err;
+                console.log(`\n Successfully updated employee's manager in the database! \n`);
+                startApp();
             })
         })
     })
