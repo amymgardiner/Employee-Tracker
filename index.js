@@ -117,7 +117,9 @@ addADepartment = () => {
 addARole = () => {
     db.query(`SELECT * FROM department;`, (err, res) => {
         if (err) throw err;
+        
         let departments = res.map(department => ({name: department.name, value: department.id }));
+        
         inquirer.prompt([
             {
             name: 'title',
@@ -153,10 +155,70 @@ addARole = () => {
 };
 
 // Add an employee
-
+addAnEmployee = () => {
+    db.query(`SELECT * FROM role;`, (err, res) => {
+        if (err) throw err;
+        
+        let roles = res.map(role => ({name: role.title, value: role.id }));
+        db.query(`SELECT * FROM employee;`, (err, res) => {
+            if (err) throw err;
+            
+            let employees = res.map(employee => ({name: employee.first_name + ' ' + employee.last_name, value: employee.id}));
+            
+            inquirer.prompt([
+                {
+                    name: 'firstName',
+                    type: 'input',
+                    message: "What is the new employee's first name?"
+                },
+                {
+                    name: 'lastName',
+                    type: 'input',
+                    message: "What is the new employee's last name?"
+                },
+                {
+                    name: 'role',
+                    type: 'list',
+                    message: "What is the new employee's title?",
+                    choices: roles
+                },
+                {
+                    name: 'manager',
+                    type: 'list',
+                    message: "Who is the new employee's manager?",
+                    choices: employees
+                }
+            ])
+            .then((response) => {
+                db.query(`INSERT INTO employee SET ?`, 
+                {
+                    first_name: response.firstName,
+                    last_name: response.lastName,
+                    role_id: response.role,
+                    manager_id: response.manager,
+                }, 
+                (err, res) => {
+                    if (err) throw err;
+                })
+                db.query(`INSERT INTO role SET ?`, 
+                {
+                    department_id: response.dept,
+                }, 
+                (err, res) => {
+                    if (err) throw err;
+                    console.log(`\n ${response.firstName} ${response.lastName} successfully added to database! \n`);
+                    startApp();
+                })
+            })
+        })
+    })
+};
 
 // Update an employee role
 
-// enter the name, salary, and department for the role and that role is added to the database
+
+
+
+
 //  enter the employee’s first name, last name, role, and manager, and that employee is added to the database
 // select an employee to update and their new role and this information is updated in the database
