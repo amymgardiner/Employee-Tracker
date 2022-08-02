@@ -52,6 +52,7 @@ startApp = () => {
             case "Update employee's role":
                 updateEmployeeRole();
                 break;
+            // Exit program function
             case 'Exit program':
                 db.end();
                 console.log('You have exited the employee management program. Thanks for using!');
@@ -62,6 +63,7 @@ startApp = () => {
     })
 };
 
+// View all departments
 viewAllDepartments = () => {
     db.query(`SELECT * FROM department;`, (err, res) => {
         if (err) throw err;
@@ -70,6 +72,7 @@ viewAllDepartments = () => {
     })
 };
 
+// View all roles
 viewAllRoles = () => {
     db.query(`SELECT role.id, role.title, role.salary, department.name AS department FROM role LEFT JOIN department ON role.department_id = department.id;`, (err, res) => {
         if (err) throw err;
@@ -78,6 +81,7 @@ viewAllRoles = () => {
     })
 };
 
+// View all employees
 viewAllEmployees = () => {
     db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
     FROM employee LEFT JOIN employee manager on manager.id = employee.manager_id INNER JOIN role ON (role.id = employee.role_id) INNER JOIN department ON (department.id = role.department_id) ORDER BY employee.id;`, (err, res) => {
@@ -87,6 +91,7 @@ viewAllEmployees = () => {
     })
 };
 
+// Add a department
 addADepartment = () => {
     inquirer.prompt([
         {
@@ -108,7 +113,50 @@ addADepartment = () => {
     })
 };
 
-// enter the name of the department and that department is added to the database
+// Add a role
+addARole = () => {
+    db.query(`SELECT * FROM department;`, (err, res) => {
+        if (err) throw err;
+        let departments = res.map(department => ({name: department.name, value: department.id }));
+        inquirer.prompt([
+            {
+            name: 'title',
+            type: 'input',
+            message: 'What is the name of the role you want to add?'   
+            },
+            {
+            name: 'salary',
+            type: 'input',
+            message: 'What is the salary of the role you want to add?'   
+            },
+            {
+            name: 'deptName',
+            type: 'list',
+            message: 'Which department do you want to add the new role to?',
+            choices: departments
+            },
+        ])
+        .then((response) => {
+            db.query(`INSERT INTO role SET ?`, 
+            {
+                title: response.title,
+                salary: response.salary,
+                department_id: response.deptName,
+            },
+            (err, res) => {
+                if (err) throw err;
+                console.log(`\n ${response.title} successfully added to database! \n`);
+                startApp();
+            })
+        })
+    })
+};
+
+// Add an employee
+
+
+// Update an employee role
+
 // enter the name, salary, and department for the role and that role is added to the database
 //  enter the employee’s first name, last name, role, and manager, and that employee is added to the database
 // select an employee to update and their new role and this information is updated in the database
